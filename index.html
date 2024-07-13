@@ -13,6 +13,7 @@
             href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;500;600;700&family=Kolker+Brush&family=Quicksand:wght@500;600&display=swap"
             rel="stylesheet"
         />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
 
         <style>
             html,
@@ -339,16 +340,43 @@
                 }, 10);
             })(document.getElementById("pinkboard"));
 
-            if (typeof Worker !== "undefined") {
-                // Tạo một Web Worker
-                const worker = new Worker("worker.js");
+            // NO SLEEP
+            // Khởi tạo NoSleep
+            var noSleep = new NoSleep();
 
-                // Lắng nghe tin nhắn từ worker
+            // Hàm để kích hoạt NoSleep
+            function enableNoSleep() {
+                noSleep.enable();
+                document.removeEventListener("click", enableNoSleep, false);
+            }
+
+            // Thêm sự kiện click để kích hoạt NoSleep
+            document.addEventListener("click", enableNoSleep, false);
+
+            // Tạo một phần tử audio ẩn
+            var audioElement = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+            audioElement.loop = true;
+
+            // Phát audio khi trang được tải
+            window.addEventListener("load", function () {
+                audioElement.play();
+            });
+
+            // Sử dụng Web Worker
+            if (typeof Worker !== "undefined") {
+                const worker = new Worker("worker.js");
                 worker.onmessage = function (event) {
-                    console.log("Đang giữ máy tính hoạt động...", event.data);
+                    console.log("Worker đang hoạt động...", event.data);
+                    // Thực hiện một hành động nhỏ
+                    fetch("/").then(() => console.log("Đã gửi yêu cầu"));
                 };
             } else {
                 console.log("Trình duyệt không hỗ trợ Web Workers");
+                // Nếu không hỗ trợ Worker, sử dụng setInterval
+                setInterval(function () {
+                    console.log("Đang giữ máy tính hoạt động...");
+                    fetch("/").then(() => console.log("Đã gửi yêu cầu"));
+                }, 4 * 60 * 1000);
             }
         </script>
 
